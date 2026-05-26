@@ -1,0 +1,370 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>knights out | advanced puzzle</title>
+
+    <!-- Google Fonts: Montserrat & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons & Font Awesome -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#2C3E50',  /* Deep Slate Blue */
+                            bg: '#F8F9FA',    /* Off-White */
+                            gray: '#7F8C8D',  /* Cool Grey */
+                            light: '#E5E7EB', /* Light Gray border */
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Montserrat', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.6s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(15px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    },
+                    boxShadow: {
+                        'soft': '0 10px 25px -5px rgba(44, 62, 80, 0.1), 0 8px 10px -6px rgba(44, 62, 80, 0.05)',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        .cell-transition {
+            transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.3s ease, outline 0.1s ease;
+        }
+        
+        /* Shake animation for trapped knight */
+        .trapped-shake {
+            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-2px, 0, 0); }
+            40%, 60% { transform: translate3d(2px, 0, 0); }
+        }
+    </style>
+</head>
+<body class="bg-brand-bg text-brand-dark min-h-screen flex flex-col items-center justify-center p-4 selection:bg-brand-dark selection:text-white">
+
+    <div class="max-w-2xl w-full flex flex-col items-center animate-fade-in-up">
+        
+        <!-- Header -->
+        <div class="text-center mb-6">
+            <p class="font-sans text-brand-gray tracking-[0.3em] text-xs md:text-sm mb-2">faller.one</p>
+            <h1 class="font-heading font-black text-3xl md:text-5xl tracking-tighter leading-tight text-brand-dark">
+                knights out
+            </h1>
+        </div>
+
+        <!-- Top Controls -->
+        <div class="flex gap-4 md:gap-6 mb-6">
+            <button onclick="undo()" class="group flex items-center font-sans text-sm font-medium text-brand-gray hover:text-brand-dark transition-colors border-b border-transparent hover:border-brand-dark pb-0.5 outline-none">
+                <i class="ph ph-arrow-u-up-left mr-1.5 group-hover:-translate-y-0.5 transition-transform"></i> undo
+            </button>
+            <button onclick="restartPuzzle()" class="group flex items-center font-sans text-sm font-medium text-brand-gray hover:text-brand-dark transition-colors border-b border-transparent hover:border-brand-dark pb-0.5 outline-none">
+                <i class="ph ph-arrows-counter-clockwise mr-1.5 group-hover:-rotate-90 transition-transform"></i> restart
+            </button>
+            <button onclick="initPuzzle()" class="group flex items-center font-sans text-sm font-medium text-brand-gray hover:text-brand-dark transition-colors border-b border-transparent hover:border-brand-dark pb-0.5 outline-none">
+                <i class="ph ph-plus mr-1.5 group-hover:scale-110 transition-transform"></i> new game
+            </button>
+        </div>
+
+        <!-- Game Board -->
+        <div class="bg-white p-3 md:p-4 rounded-2xl shadow-soft border border-brand-light/50 mb-4">
+            <div id="puzzle-grid" class="grid grid-cols-8 gap-1 md:gap-1.5 w-[320px] md:w-[480px]">
+                <!-- Buttons generated via JS -->
+            </div>
+        </div>
+
+        <!-- Discreet Instructions -->
+        <p class="font-sans text-xs text-brand-gray max-w-[320px] md:max-w-[480px] text-center opacity-80 leading-relaxed">
+            turn off all cells / click to toggle a cross / move knights around / knights block toggles / don't trap them / undo when stuck
+        </p>
+
+        <!-- Win Message -->
+        <div id="win-message" class="hidden mt-6 text-center animate-fade-in-up">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-100 mb-3">
+                <i class="ph ph-check text-2xl text-green-600"></i>
+            </div>
+            <h2 class="font-heading font-bold text-2xl text-brand-dark mb-1">puzzle solved!</h2>
+            <p class="font-sans text-sm text-brand-gray">excellent strategic control of the knights.</p>
+        </div>
+
+    </div>
+
+    <!-- Puzzle Logic -->
+    <script>
+        let grid = [];
+        let initialGridStr = '';
+        let selectedKnight = null;
+        let puzzleSolved = false;
+        let history = [];
+
+        // Initialize puzzle on page load
+        window.addEventListener('load', initPuzzle);
+
+        function initPuzzle() {
+            document.getElementById('win-message').classList.add('hidden');
+            puzzleSolved = false;
+            selectedKnight = null;
+            history = [];
+
+            // Create an empty 8x8 grid (all off, no knights)
+            grid = Array(8).fill().map(() => Array(8).fill(null).map(() => ({ isOn: false, hasKnight: false })));
+
+            // Randomly place 4 knights
+            let kCount = 0;
+            while(kCount < 4) { 
+                let r = Math.floor(Math.random() * 8);
+                let c = Math.floor(Math.random() * 8);
+                if (!grid[r][c].hasKnight) {
+                    grid[r][c].hasKnight = true;
+                    kCount++;
+                }
+            }
+
+            // --- GUARANTEED SHUFFLER (Reverse Moves) ---
+            // Perform 35 valid reverse moves from the solved state to guarantee
+            // that the puzzle has a real solution without impossible clicks.
+            let moves = 35; 
+            while(moves > 0) {
+                if (Math.random() < 0.5) {
+                    // Reverse Lights-Out Click: choose an empty cell and toggle
+                    let r = Math.floor(Math.random() * 8);
+                    let c = Math.floor(Math.random() * 8);
+                    if (!grid[r][c].hasKnight) {
+                        toggleCellInternal(r, c);
+                        moves--;
+                    }
+                } else {
+                    // Reverse Knight Move: Move knight to a dark, empty cell
+                    let knights = [];
+                    for(let r=0; r<8; r++) {
+                        for(let c=0; c<8; c++) {
+                            if (grid[r][c].hasKnight) knights.push({r, c});
+                        }
+                    }
+                    let k = knights[Math.floor(Math.random() * knights.length)];
+                    let valid = getKnightMoves(k.r, k.c).filter(m => !grid[m.r][m.c].hasKnight && !grid[m.r][m.c].isOn);
+                    
+                    if (valid.length > 0) {
+                        let dest = valid[Math.floor(Math.random() * valid.length)];
+                        grid[k.r][k.c].hasKnight = false;
+                        grid[dest.r][dest.c].hasKnight = true;
+                        moves--;
+                    }
+                }
+            }
+
+            // If it randomly generated a solved board, generate again
+            if (checkWinConditionInternal()) {
+                initPuzzle();
+                return;
+            }
+
+            initialGridStr = JSON.stringify(grid); // Save for "Restart" button
+            renderBoard();
+        }
+
+        function restartPuzzle() {
+            if (!initialGridStr) return;
+            document.getElementById('win-message').classList.add('hidden');
+            grid = JSON.parse(initialGridStr);
+            selectedKnight = null;
+            puzzleSolved = false;
+            history = [];
+            renderBoard();
+        }
+
+        function undo() {
+            if (history.length > 0 && !puzzleSolved) {
+                grid = JSON.parse(history.pop());
+                selectedKnight = null;
+                renderBoard();
+            }
+        }
+
+        // Classic toggle function (Cross pattern)
+        function toggleCellInternal(r, c) {
+            const dirs = [[0,0], [0,1], [0,-1], [1,0], [-1,0]];
+            for(let [dr, dc] of dirs) {
+                let nr = r + dr, nc = c + dc;
+                if(nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
+                    // GOLDEN RULE: "cells with knights cannot be toggled"
+                    if (!grid[nr][nc].hasKnight) {
+                        grid[nr][nc].isOn = !grid[nr][nc].isOn;
+                    }
+                }
+            }
+        }
+
+        // Returns all "L" shaped moves of a Chess Knight within 8x8 bounds
+        function getKnightMoves(r, c) {
+            const moves = [[-2,-1], [-2,1], [-1,-2], [-1,2], [1,-2], [1,2], [2,-1], [2,1]];
+            let valid = [];
+            for(let [dr, dc] of moves) {
+                let nr = r + dr, nc = c + dc;
+                if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) valid.push({r: nr, c: nc});
+            }
+            return valid;
+        }
+
+        // Handles player clicking on a cell
+        function handleCellClick(r, c) {
+            if (puzzleSolved) return;
+            let cell = grid[r][c];
+
+            // If a knight is already selected for movement
+            if (selectedKnight) {
+                let moves = getKnightMoves(selectedKnight.r, selectedKnight.c);
+                let isMoveValid = moves.some(m => m.r === r && m.c === c);
+
+                if (isMoveValid && !cell.hasKnight) {
+                    // Execute Knight move
+                    history.push(JSON.stringify(grid)); // Save history for Undo
+                    grid[selectedKnight.r][selectedKnight.c].hasKnight = false;
+                    grid[r][c].hasKnight = true;
+                    selectedKnight = null;
+                } else if (cell.hasKnight && !cell.isOn) {
+                    // Clicked on another valid knight, select it instead
+                    selectedKnight = {r, c};
+                } else if (cell.hasKnight && cell.isOn) {
+                    // Clicked on a trapped knight
+                    triggerShake(r, c);
+                    selectedKnight = null;
+                } else {
+                    // Clicked on an invalid cell for the knight, cancel selection
+                    selectedKnight = null;
+                }
+            } 
+            // If no knight is selected
+            else {
+                if (cell.hasKnight) {
+                    if (!cell.isOn) {
+                        // Select knight if it's on a dark cell
+                        selectedKnight = {r, c};
+                    } else {
+                        // Error: Knight on a lit cell is trapped!
+                        triggerShake(r, c);
+                    }
+                } else {
+                    // Clicked on an empty cell: trigger Lights Out effect
+                    history.push(JSON.stringify(grid)); // Save history
+                    toggleCellInternal(r, c);
+                }
+            }
+
+            // Check Win Condition
+            if (checkWinConditionInternal()) {
+                puzzleSolved = true;
+                document.getElementById('win-message').classList.remove('hidden');
+                selectedKnight = null;
+            }
+            renderBoard();
+        }
+
+        // Shake animation for error feedback
+        function triggerShake(r, c) {
+            let btn = document.getElementById(`cell-${r}-${c}`);
+            if(btn) {
+                btn.classList.remove('trapped-shake'); // Reset in case of rapid clicks
+                void btn.offsetWidth; // Force reflow
+                btn.classList.add('trapped-shake');
+            }
+        }
+
+        // Win condition (All lights off)
+        function checkWinConditionInternal() {
+            for(let r=0; r<8; r++){
+                for(let c=0; c<8; c++){
+                    if(grid[r][c].isOn) return false;
+                }
+            }
+            return true;
+        }
+
+        // Draws the board in the DOM
+        function renderBoard() {
+            const gridElement = document.getElementById('puzzle-grid');
+            gridElement.innerHTML = '';
+
+            let validDestinations = [];
+            if (selectedKnight) {
+                validDestinations = getKnightMoves(selectedKnight.r, selectedKnight.c).filter(m => !grid[m.r][m.c].hasKnight);
+            }
+
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    const cell = grid[r][c];
+                    const btn = document.createElement('button');
+                    btn.id = `cell-${r}-${c}`;
+                    
+                    // Base button classes
+                    let baseClasses = "cell-transition w-full aspect-square rounded-sm md:rounded-md flex items-center justify-center relative cursor-pointer outline-none ";
+                    
+                    // Interactive behavior if game is running
+                    if (!puzzleSolved) baseClasses += "active:scale-95 ";
+
+                    // Colors (Lit or Unlit)
+                    if (cell.isOn) {
+                        baseClasses += "bg-brand-dark shadow-inner text-white";
+                    } else {
+                        baseClasses += "bg-brand-light text-brand-dark hover:brightness-95";
+                    }
+
+                    // Focus/Selection of Knight
+                    if (selectedKnight && selectedKnight.r === r && selectedKnight.c === c) {
+                        baseClasses += " ring-[3px] ring-brand-gray ring-offset-1 ring-offset-brand-bg z-10";
+                    }
+
+                    btn.className = baseClasses;
+                    btn.onclick = () => handleCellClick(r, c);
+
+                    // Render Knight Icon
+                    if (cell.hasKnight) {
+                        let iconClasses = "fa-solid fa-chess-knight text-xl md:text-3xl ";
+                        // If the knight is on a lit cell, it turns red indicating it is trapped
+                        if (cell.isOn) {
+                            iconClasses += "text-red-400 drop-shadow-md"; 
+                        }
+                        btn.innerHTML = `<i class="${iconClasses}"></i>`;
+                    }
+
+                    // Valid Move Indicator (Dot in the center)
+                    if (selectedKnight && validDestinations.some(m => m.r === r && m.c === c)) {
+                        let indicatorColor = cell.isOn ? "bg-white opacity-40" : "bg-brand-dark opacity-30";
+                        btn.innerHTML += `<div class="absolute w-2 h-2 md:w-3 md:h-3 rounded-full ${indicatorColor} pointer-events-none"></div>`;
+                    }
+
+                    gridElement.appendChild(btn);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
+
+```
