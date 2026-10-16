@@ -1,367 +1,190 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>knights out | advanced puzzle</title>
-
-    <!-- Google Fonts: Montserrat & Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    
-    <!-- Phosphor Icons & Font Awesome -->
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            dark: '#2C3E50',  /* Deep Slate Blue */
-                            bg: '#F8F9FA',    /* Off-White */
-                            gray: '#7F8C8D',  /* Cool Grey */
-                            light: '#E5E7EB', /* Light Gray border */
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        heading: ['Montserrat', 'sans-serif'],
-                    },
-                    animation: {
-                        'fade-in-up': 'fadeInUp 0.6s ease-out forwards',
-                    },
-                    keyframes: {
-                        fadeInUp: {
-                            '0%': { opacity: '0', transform: 'translateY(15px)' },
-                            '100%': { opacity: '1', transform: 'translateY(0)' },
-                        }
-                    },
-                    boxShadow: {
-                        'soft': '0 10px 25px -5px rgba(44, 62, 80, 0.1), 0 8px 10px -6px rgba(44, 62, 80, 0.05)',
-                    }
-                }
-            }
-        }
-    </script>
-    
-    <style>
-        .cell-transition {
-            transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.3s ease, outline 0.1s ease;
-        }
-        
-        /* Shake animation for trapped knight */
-        .trapped-shake {
-            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
-        }
-        @keyframes shake {
-            10%, 90% { transform: translate3d(-1px, 0, 0); }
-            20%, 80% { transform: translate3d(2px, 0, 0); }
-            30%, 50%, 70% { transform: translate3d(-2px, 0, 0); }
-            40%, 60% { transform: translate3d(2px, 0, 0); }
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>knights out</title>
+  <meta name="description" content="A knight's-move puzzle. Jump onto lit squares to put them out — while shadow and mirror knights copy every move you make.">
+  <meta name="theme-color" content="#090d18">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,500;1,9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="bg-brand-bg text-brand-dark min-h-screen flex flex-col items-center justify-center p-4 selection:bg-brand-dark selection:text-white">
+<body>
+  <svg class="sprite" aria-hidden="true" focusable="false">
+    <symbol id="i-knight" viewBox="0 0 100 100">
+      <ellipse cx="54" cy="94" rx="34" ry="4.5" style="fill:var(--k-cast,rgba(0,0,0,.35))"/>
+      <path d="M15 49C17 40 23 32 31 27C37 23 43 19 48 16L53 4L60 13C72 18 82 31 84 49C85.5 62 83 73 81.5 82L28.5 82C28.5 74 31.5 67 38 60.5C34 61 29.5 61.5 25 62C19 62.5 13.5 57 15 49Z" style="fill:var(--k-body,#f3ead6);stroke:var(--k-line,rgba(40,30,15,.35));stroke-width:2;stroke-linejoin:round"/>
+      <path d="M61 15C73 22 79 36 79.5 51C80 61 78.5 71 77 79" style="fill:none;stroke:var(--k-mane,rgba(110,85,45,.3));stroke-width:3;stroke-linecap:round"/>
+      <circle cx="37.5" cy="34.5" r="3.4" style="fill:var(--k-eye,#151b2c)"/>
+      <path d="M19.5 50.5C20.5 49 22.5 48.6 24 49.6" style="fill:none;stroke:var(--k-eye,#151b2c);stroke-width:2;stroke-linecap:round"/>
+      <rect x="27" y="76" width="54" height="7" rx="3" style="fill:var(--k-collar,#ddd0b4);stroke:var(--k-line,rgba(40,30,15,.35));stroke-width:1.5"/>
+      <rect x="21" y="81" width="66" height="10" rx="4" style="fill:var(--k-base,#e7dbc0);stroke:var(--k-line,rgba(40,30,15,.35));stroke-width:1.5"/>
+    </symbol>
+    <symbol id="i-flame" viewBox="0 0 24 24">
+      <path d="M12 2.5c.6 3.2 5.5 5.7 5.5 11a5.5 5.5 0 0 1-11 0c0-2.6 1.4-4.2 2.6-5.4.2 1.8 1 3 2.2 3.4C10.6 8.9 11.3 5.6 12 2.5Z" fill="currentColor"/>
+    </symbol>
+    <symbol id="i-undo" viewBox="0 0 24 24">
+      <path d="M9 14 4 9l5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="i-restart" viewBox="0 0 24 24">
+      <path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <path d="M5.5 2.8v4.4h4.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="i-hint" viewBox="0 0 24 24">
+      <path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.3 1.1 2.2h5c0-.9.4-1.7 1.1-2.2A6 6 0 0 0 12 3Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24">
+      <rect x="3.5" y="3.5" width="7" height="7" rx="1.6" fill="none" stroke="currentColor" stroke-width="2"/>
+      <rect x="13.5" y="3.5" width="7" height="7" rx="1.6" fill="none" stroke="currentColor" stroke-width="2"/>
+      <rect x="3.5" y="13.5" width="7" height="7" rx="1.6" fill="none" stroke="currentColor" stroke-width="2"/>
+      <rect x="13.5" y="13.5" width="7" height="7" rx="1.6" fill="none" stroke="currentColor" stroke-width="2"/>
+    </symbol>
+    <symbol id="i-help" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.2-2.4 3.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="12" cy="17.2" r="1.2" fill="currentColor"/>
+    </symbol>
+    <symbol id="i-sound" viewBox="0 0 24 24">
+      <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M15.5 9a4.2 4.2 0 0 1 0 6M18.3 6.5a8 8 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="i-mute" viewBox="0 0 24 24">
+      <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+      <path d="m16 9.5 5 5m0-5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="i-next" viewBox="0 0 24 24">
+      <path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24">
+      <rect x="5" y="10.5" width="14" height="10" rx="2.2" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" fill="none" stroke="currentColor" stroke-width="2"/>
+    </symbol>
+    <symbol id="i-dice" viewBox="0 0 24 24">
+      <rect x="3.5" y="3.5" width="17" height="17" rx="4" fill="none" stroke="currentColor" stroke-width="2"/>
+      <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.5" fill="currentColor"/>
+      <circle cx="15.5" cy="8.5" r="1.5" fill="currentColor"/><circle cx="8.5" cy="15.5" r="1.5" fill="currentColor"/>
+    </symbol>
+    <symbol id="i-close" viewBox="0 0 24 24">
+      <path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </symbol>
+  </svg>
 
-    <div class="max-w-2xl w-full flex flex-col items-center animate-fade-in-up">
-        
-        <!-- Header -->
-        <div class="text-center mb-6">
-            <p class="font-sans text-brand-gray tracking-[0.3em] text-xs md:text-sm mb-2">faller.one</p>
-            <h1 class="font-heading font-black text-3xl md:text-5xl tracking-tighter leading-tight text-brand-dark">
-                knights out
-            </h1>
+  <div class="sky" aria-hidden="true"></div>
+
+  <div class="app">
+    <header class="topbar">
+      <button class="icon-btn" id="btn-menu" type="button" aria-label="Levels" title="Levels (Esc)">
+        <svg><use href="#i-grid"/></svg>
+      </button>
+      <a class="brand" href="#" id="brand">
+        <span class="brand-site">faller.one</span>
+        <span class="brand-name">knights <em>out</em></span>
+      </a>
+      <div class="topbar-right">
+        <button class="icon-btn" id="btn-help" type="button" aria-label="How to play" title="How to play">
+          <svg><use href="#i-help"/></svg>
+        </button>
+        <button class="icon-btn" id="btn-sound" type="button" aria-label="Sound on" title="Sound">
+          <svg><use href="#i-sound"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="view view-game" id="view-game" aria-label="Puzzle">
+        <div class="level-head">
+          <p class="level-label" id="level-label">first light · 1 of 6</p>
+          <p class="level-tip" id="level-tip"></p>
         </div>
 
-        <!-- Top Controls -->
-        <div class="flex gap-4 md:gap-6 mb-6">
-            <button onclick="undo()" class="group flex items-center font-sans text-sm font-medium text-brand-gray hover:text-brand-dark transition-colors border-b border-transparent hover:border-brand-dark pb-0.5 outline-none">
-                <i class="ph ph-arrow-u-up-left mr-1.5 group-hover:-translate-y-0.5 transition-transform"></i> undo
-            </button>
-            <button onclick="restartPuzzle()" class="group flex items-center font-sans text-sm font-medium text-brand-gray hover:text-brand-dark transition-colors border-b border-transparent hover:border-brand-dark pb-0.5 outline-none">
-                <i class="ph ph-arrows-counter-clockwise mr-1.5 group-hover:-rotate-90 transition-transform"></i> restart
-            </button>
-            <button onclick="initPuzzle()" class="group flex items-center font-sans text-sm font-medium text-brand-gray hover:text-brand-dark transition-colors border-b border-transparent hover:border-brand-dark pb-0.5 outline-none">
-                <i class="ph ph-plus mr-1.5 group-hover:scale-110 transition-transform"></i> new game
-            </button>
-        </div>
+        <div class="stage" id="stage">
+          <div class="board" id="board" role="grid" aria-label="Board">
+            <div class="tiles" id="tiles"></div>
+            <div class="pieces" id="pieces" aria-hidden="true"></div>
+          </div>
 
-        <!-- Game Board -->
-        <div class="bg-white p-3 md:p-4 rounded-2xl shadow-soft border border-brand-light/50 mb-4">
-            <div id="puzzle-grid" class="grid grid-cols-8 gap-1 md:gap-1.5 w-[320px] md:w-[480px]">
-                <!-- Buttons generated via JS -->
+          <div class="veil" id="veil" hidden>
+            <div class="card" role="dialog" aria-live="polite">
+              <p class="card-kicker" id="card-kicker"></p>
+              <h2 class="card-title" id="card-title"></h2>
+              <p class="card-text" id="card-text"></p>
+              <div class="card-actions" id="card-actions"></div>
             </div>
+          </div>
         </div>
 
-        <!-- Discreet Instructions -->
-        <p class="font-sans text-xs text-brand-gray max-w-[320px] md:max-w-[480px] text-center opacity-80 leading-relaxed">
-            turn off all cells / click to toggle a cross / move knights around / knights block toggles / don't trap them / undo when stuck
-        </p>
-
-        <!-- Win Message -->
-        <div id="win-message" class="hidden mt-6 text-center animate-fade-in-up">
-            <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-100 mb-3">
-                <i class="ph ph-check text-2xl text-green-600"></i>
-            </div>
-            <h2 class="font-heading font-bold text-2xl text-brand-dark mb-1">puzzle solved!</h2>
-            <p class="font-sans text-sm text-brand-gray">excellent strategic control of the knights.</p>
+        <div class="hud">
+          <div class="counter" aria-live="polite">
+            <svg class="counter-flame"><use href="#i-flame"/></svg>
+            <span class="counter-num" id="lights-left">0</span>
+            <span class="counter-label" id="lights-label">lights left</span>
+          </div>
+          <div class="actions">
+            <button class="act" id="btn-undo" type="button" title="Undo (Z)">
+              <svg><use href="#i-undo"/></svg><span>undo</span>
+            </button>
+            <button class="act" id="btn-restart" type="button" title="Restart (R)">
+              <svg><use href="#i-restart"/></svg><span>restart</span>
+            </button>
+            <button class="act" id="btn-hint" type="button" title="Hint (H)">
+              <svg><use href="#i-hint"/></svg><span>hint</span>
+            </button>
+          </div>
+          <p class="status" id="status" aria-live="polite"></p>
         </div>
+      </section>
 
+      <section class="view view-menu" id="view-menu" hidden aria-label="Levels">
+        <div class="menu-intro">
+          <h2>Put out every light.</h2>
+          <p>Your knight jumps in an L and may only land on a lit square — which it puts out. Echo knights copy every jump you make, and they are not so careful.</p>
+        </div>
+        <div class="chapters" id="chapters"></div>
+        <div class="endless">
+          <div class="chapter-head">
+            <h3><svg class="chapter-icon"><use href="#i-dice"/></svg>endless</h3>
+            <p>A fresh puzzle every time, always solvable.</p>
+          </div>
+          <div class="endless-modes" id="endless-modes"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <dialog class="help" id="help">
+    <div class="help-inner">
+      <button class="icon-btn help-close" id="help-close" type="button" aria-label="Close"><svg><use href="#i-close"/></svg></button>
+      <h2>How to play</h2>
+      <ol class="rules">
+        <li>
+          <span class="rule-ill rule-ill--knight"><svg><use href="#i-knight"/></svg></span>
+          <span><b>Your knight</b> jumps in an L: two squares one way, then one to the side. It can only land on a <b class="t-lit">lit</b> square, and it puts that light out.</span>
+        </li>
+        <li>
+          <span class="rule-ill rule-ill--shadow"><svg><use href="#i-knight"/></svg></span>
+          <span><b class="t-shadow">Shadow knights</b> copy each jump you make, in the same direction.</span>
+        </li>
+        <li>
+          <span class="rule-ill rule-ill--mirror"><svg><use href="#i-knight"/></svg></span>
+          <span><b class="t-mirror">Mirror knights</b> copy it flipped left&nbsp;↔&nbsp;right.</span>
+        </li>
+        <li>
+          <span class="rule-ill rule-ill--flip"><svg><use href="#i-flame"/></svg></span>
+          <span>Echo knights land anywhere: a lit square goes out, a dark one <b class="t-lit">lights up</b>. If their jump would leave the board, fall into a gap or hit another piece, they stay put.</span>
+        </li>
+      </ol>
+      <p class="help-goal">Turn every square dark to win. Undo is free — and the hint knows when you've hit a dead end.</p>
+      <p class="help-keys"><kbd>Z</kbd> undo · <kbd>R</kbd> restart · <kbd>H</kbd> hint · <kbd>Esc</kbd> levels</p>
     </div>
+  </dialog>
 
-    <!-- Puzzle Logic -->
-    <script>
-        let grid = [];
-        let initialGridStr = '';
-        let selectedKnight = null;
-        let puzzleSolved = false;
-        let history = [];
-
-        // Initialize puzzle on page load
-        window.addEventListener('load', initPuzzle);
-
-        function initPuzzle() {
-            document.getElementById('win-message').classList.add('hidden');
-            puzzleSolved = false;
-            selectedKnight = null;
-            history = [];
-
-            // Create an empty 8x8 grid (all off, no knights)
-            grid = Array(8).fill().map(() => Array(8).fill(null).map(() => ({ isOn: false, hasKnight: false })));
-
-            // Randomly place 4 knights
-            let kCount = 0;
-            while(kCount < 4) { 
-                let r = Math.floor(Math.random() * 8);
-                let c = Math.floor(Math.random() * 8);
-                if (!grid[r][c].hasKnight) {
-                    grid[r][c].hasKnight = true;
-                    kCount++;
-                }
-            }
-
-            // --- GUARANTEED SHUFFLER (Reverse Moves) ---
-            // Perform 35 valid reverse moves from the solved state to guarantee
-            // that the puzzle has a real solution without impossible clicks.
-            let moves = 35; 
-            while(moves > 0) {
-                if (Math.random() < 0.5) {
-                    // Reverse Lights-Out Click: choose an empty cell and toggle
-                    let r = Math.floor(Math.random() * 8);
-                    let c = Math.floor(Math.random() * 8);
-                    if (!grid[r][c].hasKnight) {
-                        toggleCellInternal(r, c);
-                        moves--;
-                    }
-                } else {
-                    // Reverse Knight Move: Move knight to a dark, empty cell
-                    let knights = [];
-                    for(let r=0; r<8; r++) {
-                        for(let c=0; c<8; c++) {
-                            if (grid[r][c].hasKnight) knights.push({r, c});
-                        }
-                    }
-                    let k = knights[Math.floor(Math.random() * knights.length)];
-                    let valid = getKnightMoves(k.r, k.c).filter(m => !grid[m.r][m.c].hasKnight && !grid[m.r][m.c].isOn);
-                    
-                    if (valid.length > 0) {
-                        let dest = valid[Math.floor(Math.random() * valid.length)];
-                        grid[k.r][k.c].hasKnight = false;
-                        grid[dest.r][dest.c].hasKnight = true;
-                        moves--;
-                    }
-                }
-            }
-
-            // If it randomly generated a solved board, generate again
-            if (checkWinConditionInternal()) {
-                initPuzzle();
-                return;
-            }
-
-            initialGridStr = JSON.stringify(grid); // Save for "Restart" button
-            renderBoard();
-        }
-
-        function restartPuzzle() {
-            if (!initialGridStr) return;
-            document.getElementById('win-message').classList.add('hidden');
-            grid = JSON.parse(initialGridStr);
-            selectedKnight = null;
-            puzzleSolved = false;
-            history = [];
-            renderBoard();
-        }
-
-        function undo() {
-            if (history.length > 0 && !puzzleSolved) {
-                grid = JSON.parse(history.pop());
-                selectedKnight = null;
-                renderBoard();
-            }
-        }
-
-        // Classic toggle function (Cross pattern)
-        function toggleCellInternal(r, c) {
-            const dirs = [[0,0], [0,1], [0,-1], [1,0], [-1,0]];
-            for(let [dr, dc] of dirs) {
-                let nr = r + dr, nc = c + dc;
-                if(nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
-                    // GOLDEN RULE: "cells with knights cannot be toggled"
-                    if (!grid[nr][nc].hasKnight) {
-                        grid[nr][nc].isOn = !grid[nr][nc].isOn;
-                    }
-                }
-            }
-        }
-
-        // Returns all "L" shaped moves of a Chess Knight within 8x8 bounds
-        function getKnightMoves(r, c) {
-            const moves = [[-2,-1], [-2,1], [-1,-2], [-1,2], [1,-2], [1,2], [2,-1], [2,1]];
-            let valid = [];
-            for(let [dr, dc] of moves) {
-                let nr = r + dr, nc = c + dc;
-                if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) valid.push({r: nr, c: nc});
-            }
-            return valid;
-        }
-
-        // Handles player clicking on a cell
-        function handleCellClick(r, c) {
-            if (puzzleSolved) return;
-            let cell = grid[r][c];
-
-            // If a knight is already selected for movement
-            if (selectedKnight) {
-                let moves = getKnightMoves(selectedKnight.r, selectedKnight.c);
-                let isMoveValid = moves.some(m => m.r === r && m.c === c);
-
-                if (isMoveValid && !cell.hasKnight) {
-                    // Execute Knight move
-                    history.push(JSON.stringify(grid)); // Save history for Undo
-                    grid[selectedKnight.r][selectedKnight.c].hasKnight = false;
-                    grid[r][c].hasKnight = true;
-                    selectedKnight = null;
-                } else if (cell.hasKnight && !cell.isOn) {
-                    // Clicked on another valid knight, select it instead
-                    selectedKnight = {r, c};
-                } else if (cell.hasKnight && cell.isOn) {
-                    // Clicked on a trapped knight
-                    triggerShake(r, c);
-                    selectedKnight = null;
-                } else {
-                    // Clicked on an invalid cell for the knight, cancel selection
-                    selectedKnight = null;
-                }
-            } 
-            // If no knight is selected
-            else {
-                if (cell.hasKnight) {
-                    if (!cell.isOn) {
-                        // Select knight if it's on a dark cell
-                        selectedKnight = {r, c};
-                    } else {
-                        // Error: Knight on a lit cell is trapped!
-                        triggerShake(r, c);
-                    }
-                } else {
-                    // Clicked on an empty cell: trigger Lights Out effect
-                    history.push(JSON.stringify(grid)); // Save history
-                    toggleCellInternal(r, c);
-                }
-            }
-
-            // Check Win Condition
-            if (checkWinConditionInternal()) {
-                puzzleSolved = true;
-                document.getElementById('win-message').classList.remove('hidden');
-                selectedKnight = null;
-            }
-            renderBoard();
-        }
-
-        // Shake animation for error feedback
-        function triggerShake(r, c) {
-            let btn = document.getElementById(`cell-${r}-${c}`);
-            if(btn) {
-                btn.classList.remove('trapped-shake'); // Reset in case of rapid clicks
-                void btn.offsetWidth; // Force reflow
-                btn.classList.add('trapped-shake');
-            }
-        }
-
-        // Win condition (All lights off)
-        function checkWinConditionInternal() {
-            for(let r=0; r<8; r++){
-                for(let c=0; c<8; c++){
-                    if(grid[r][c].isOn) return false;
-                }
-            }
-            return true;
-        }
-
-        // Draws the board in the DOM
-        function renderBoard() {
-            const gridElement = document.getElementById('puzzle-grid');
-            gridElement.innerHTML = '';
-
-            let validDestinations = [];
-            if (selectedKnight) {
-                validDestinations = getKnightMoves(selectedKnight.r, selectedKnight.c).filter(m => !grid[m.r][m.c].hasKnight);
-            }
-
-            for (let r = 0; r < 8; r++) {
-                for (let c = 0; c < 8; c++) {
-                    const cell = grid[r][c];
-                    const btn = document.createElement('button');
-                    btn.id = `cell-${r}-${c}`;
-                    
-                    // Base button classes
-                    let baseClasses = "cell-transition w-full aspect-square rounded-sm md:rounded-md flex items-center justify-center relative cursor-pointer outline-none ";
-                    
-                    // Interactive behavior if game is running
-                    if (!puzzleSolved) baseClasses += "active:scale-95 ";
-
-                    // Colors (Lit or Unlit)
-                    if (cell.isOn) {
-                        baseClasses += "bg-brand-dark shadow-inner text-white";
-                    } else {
-                        baseClasses += "bg-brand-light text-brand-dark hover:brightness-95";
-                    }
-
-                    // Focus/Selection of Knight
-                    if (selectedKnight && selectedKnight.r === r && selectedKnight.c === c) {
-                        baseClasses += " ring-[3px] ring-brand-gray ring-offset-1 ring-offset-brand-bg z-10";
-                    }
-
-                    btn.className = baseClasses;
-                    btn.onclick = () => handleCellClick(r, c);
-
-                    // Render Knight Icon
-                    if (cell.hasKnight) {
-                        let iconClasses = "fa-solid fa-chess-knight text-xl md:text-3xl ";
-                        // If the knight is on a lit cell, it turns red indicating it is trapped
-                        if (cell.isOn) {
-                            iconClasses += "text-red-400 drop-shadow-md"; 
-                        }
-                        btn.innerHTML = `<i class="${iconClasses}"></i>`;
-                    }
-
-                    // Valid Move Indicator (Dot in the center)
-                    if (selectedKnight && validDestinations.some(m => m.r === r && m.c === c)) {
-                        let indicatorColor = cell.isOn ? "bg-white opacity-40" : "bg-brand-dark opacity-30";
-                        btn.innerHTML += `<div class="absolute w-2 h-2 md:w-3 md:h-3 rounded-full ${indicatorColor} pointer-events-none"></div>`;
-                    }
-
-                    gridElement.appendChild(btn);
-                }
-            }
-        }
-    </script>
+  <script src="js/engine.js"></script>
+  <script src="js/generator.js"></script>
+  <script src="js/levels.js"></script>
+  <script src="js/game.js"></script>
 </body>
 </html>
