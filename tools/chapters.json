@@ -1,0 +1,82 @@
+{
+  "chapters": [
+    {
+      "name": "first light",
+      "blurb": "One knight. Put out every light.",
+      "pieces": "K",
+      "levels": [
+        {"spec": {"w": 3, "h": 4, "steps": 4}, "tries": 200, "maxSols": 1, "smart": [1, 1], "prefer": "easy", "tip": "Tap a lit square to jump there and put it out."},
+        {"spec": {"w": 4, "h": 4, "steps": 6}, "tries": 300, "smart": [0.5, 0.9], "maxSols": 2, "tip": "Knights jump in an L: two squares one way, one to the side."},
+        {"spec": {"w": 4, "h": 4, "steps": 7, "holes": 3}, "tries": 300, "maxSols": 1, "smart": [0.35, 0.6], "tip": "You can only land on lit squares, so plan the whole route."},
+        {"spec": {"w": 4, "h": 5, "steps": 9, "holes": 2}, "tries": 400, "maxSols": 2, "smart": [0.15, 0.35], "tip": "Corners have few ways in. Visit them early, or finish there."},
+        {"spec": {"w": 5, "h": 5, "steps": 11, "holes": 2}, "tries": 500, "maxSols": 2, "smart": [0.05, 0.15]},
+        {"spec": {"w": 5, "h": 5, "steps": 15, "holes": 2, "tour": true}, "tries": 600, "maxSols": 4, "lit": [14, 20], "smart": [0.01, 0.04], "games": 800}
+      ]
+    },
+    {
+      "name": "cavalry",
+      "blurb": "More knights, more trails to plan.",
+      "pieces": "KK",
+      "levels": [
+        {"spec": {"w": 4, "h": 5, "steps": 7, "players": 2}, "tries": 300, "maxSols": 2, "smart": [0.35, 0.7], "tip": "Two knights. Tap one to choose it."},
+        {"spec": {"w": 5, "h": 5, "steps": 10, "players": 2, "holes": 2}, "tries": 400, "maxSols": 2, "smart": [0.12, 0.3], "tip": "Each knight clears its own trail. Split the work."},
+        {"spec": {"w": 5, "h": 5, "steps": 12, "players": 3, "holes": 1}, "tries": 500, "maxSols": 4, "smart": [0.05, 0.25]},
+        {"spec": {"w": 5, "h": 5, "steps": 16, "players": 2, "tour": true}, "tries": 500, "maxSols": 3, "lit": [15, 22], "smart": [0.01, 0.06]},
+        {"spec": {"w": 6, "h": 5, "steps": 16, "players": 3, "holes": 2, "tour": true}, "tries": 500, "maxSols": 4, "lit": [14, 18], "smart": [0.005, 0.04]},
+        {"spec": {"w": 6, "h": 6, "steps": 22, "players": 2, "holes": 2, "tour": true}, "tries": 500, "maxSols": 6, "lit": [20, 24], "smart": [0, 0.02], "tip": "The grand tour."}
+      ]
+    },
+    {
+      "name": "shadows",
+      "blurb": "A shadow copies each jump you make.",
+      "pieces": "KS",
+      "levels": [
+        {"spec": {"w": 4, "h": 4, "steps": 3, "shadows": 1}, "tries": 400, "maxSols": 1, "assists": 1, "maxBridges": 0, "maxBumps": 0, "noStartLit": true, "prefer": "easy", "tip": "Meet your shadow. It copies every jump you make, and puts out lights too."},
+        {"spec": {"w": 4, "h": 5, "steps": 4, "shadows": 1}, "tries": 500, "maxSols": 1, "bridges": 1, "maxBumps": 0, "noStartLit": true, "smart": [0.2, 0.9], "tip": "Shadows land on dark squares too, and light them up. Sometimes that is the only way across."},
+        {"spec": {"w": 4, "h": 5, "steps": 4, "shadows": 1}, "tries": 500, "maxSols": 1, "bumps": 1, "noStartLit": true, "smart": [0.15, 0.7], "tip": "If the shadow's jump would leave the board, it stays put."},
+        {"spec": {"w": 5, "h": 5, "steps": 6, "shadows": 1}, "tries": 600, "maxSols": 1, "bridges": 1, "smart": [0.08, 0.25], "tip": "Hover over a square (or press and hold) to see where the shadow would land."},
+        {"spec": {"w": 5, "h": 5, "steps": 7, "shadows": 1, "holes": 1}, "tries": 600, "maxSols": 1, "bridges": 1, "bumps": 1, "smart": [0.02, 0.08]},
+        {"spec": {"w": 5, "h": 6, "steps": 9, "shadows": 1, "holes": 1}, "tries": 600, "maxSols": 1, "bridges": 1, "bumps": 1, "smart": [0, 0.02]}
+      ]
+    },
+    {
+      "name": "mirrors",
+      "blurb": "A mirror copies your jumps, flipped left to right.",
+      "pieces": "KM",
+      "levels": [
+        {"spec": {"w": 4, "h": 4, "steps": 3, "mirrors": 1}, "tries": 400, "maxSols": 1, "assists": 1, "maxBumps": 0, "noStartLit": true, "prefer": "easy", "tip": "The mirror copies your jump flipped left to right: you go left, it goes right."},
+        {"spec": {"w": 5, "h": 4, "steps": 4, "mirrors": 1}, "tries": 500, "maxSols": 1, "bridges": 1, "noStartLit": true, "smart": [0.2, 0.8]},
+        {"spec": {"w": 5, "h": 5, "steps": 5, "mirrors": 1}, "tries": 600, "maxSols": 1, "bridges": 1, "bumps": 1, "smart": [0.1, 0.4]},
+        {"spec": {"w": 5, "h": 5, "steps": 6, "mirrors": 1, "holes": 1}, "tries": 600, "maxSols": 1, "bridges": 1, "smart": [0.04, 0.15]},
+        {"spec": {"w": 5, "h": 5, "steps": 8, "mirrors": 1}, "tries": 600, "maxSols": 1, "bridges": 1, "bumps": 1, "smart": [0.01, 0.05]},
+        {"spec": {"w": 6, "h": 5, "steps": 9, "mirrors": 1, "holes": 2}, "tries": 600, "maxSols": 1, "bridges": 2, "bumps": 1, "smart": [0, 0.015]}
+      ]
+    },
+    {
+      "name": "masquerade",
+      "blurb": "Shadows and mirrors, all dancing to your steps.",
+      "pieces": "SM",
+      "levels": [
+        {"spec": {"w": 5, "h": 5, "steps": 4, "players": 2, "shadows": 1}, "tries": 500, "maxSols": 2, "bridges": 1, "noStartLit": true, "smart": [0.15, 0.6], "tip": "The shadow copies whichever knight you move."},
+        {"spec": {"w": 5, "h": 5, "steps": 4, "shadows": 1, "mirrors": 1}, "tries": 500, "maxSols": 1, "assists": 1, "noStartLit": true, "smart": [0.15, 0.6], "tip": "A shadow and a mirror: one follows you, the other mirrors you."},
+        {"spec": {"w": 5, "h": 5, "steps": 5, "shadows": 2}, "tries": 500, "maxSols": 1, "bridges": 1, "smart": [0.05, 0.3]},
+        {"rows": [".Moo.", ".....", ".o.oo", "..o.s", ".oo.K"]},
+        {"rows": ["K.o.o", "Kx..o", "o.ooM", "..o..", "....."]},
+        {"spec": {"w": 6, "h": 5, "steps": 8, "shadows": 1, "mirrors": 1, "holes": 1}, "tries": 800, "maxSols": 2, "bridges": 1, "bumps": 1, "smart": [0, 0.03]}
+      ]
+    },
+    {
+      "name": "the long night",
+      "blurb": "Bigger boards, longer plans. Good luck.",
+      "pieces": "KSM",
+      "levels": [
+        {"spec": {"w": 6, "h": 6, "steps": 10, "shadows": 1, "holes": 2}, "tries": 500, "maxSols": 1, "bridges": 2, "bumps": 1, "smart": [0, 0.02]},
+        {"spec": {"w": 6, "h": 6, "steps": 10, "mirrors": 1, "holes": 2}, "tries": 500, "maxSols": 1, "bridges": 2, "bumps": 1, "smart": [0, 0.02]},
+        {"rows": ["K.S..o", "..oooo", "..omoo", "......", ".o...K"]},
+        {"spec": {"w": 6, "h": 6, "steps": 32, "holes": 1, "tour": true}, "tries": 500, "maxSols": 20, "lit": [30, 35], "smart": [0, 0.005]},
+        {"spec": {"w": 6, "h": 6, "steps": 10, "shadows": 1, "mirrors": 1, "holes": 2}, "tries": 600, "maxSols": 2, "bridges": 2, "bumps": 1, "smart": [0, 0.015]},
+        {"spec": {"w": 6, "h": 6, "steps": 11, "players": 2, "shadows": 1, "mirrors": 1, "holes": 2}, "tries": 600, "maxSols": 2, "bridges": 2, "bumps": 1, "smart": [0, 0.015], "tip": "The last light."}
+      ]
+    }
+  ]
+}
